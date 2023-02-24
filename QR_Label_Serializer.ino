@@ -15,11 +15,11 @@
 #include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
 #include <SPI.h>
 #include "Def.h"
-#include "GAMA_EEPROM.h"
+#include <EEPROM.h>
 
+#define VERSION "1.0.0"
 
 #define EEPROM_SIZE        512
-GAMA_EEPROM eeprom = GAMA_EEPROM(EEPROM_SIZE);
 
 // This is the file name used to store the touch coordinate
 // calibration data. Change the name to start a new calibration.
@@ -46,35 +46,37 @@ char possibleChannelCharacters[36];
 HardwareSerial uart(2);  //if using UART2
 
 
-char channel_char_index[] = {0, 0, 0, 0};
+uint8_t channel_char_index[] = {0, 0, 0, 0};
 
 char channel[4];
 
 void setup(void) {
   Serial.begin(115200);
 
-  eeprom.begin();
+  Serial.println("GAMA Inc. QR Label Serializer for Zebra ZT230 thermal printer");
+  Serial.print("Version: ");Serial.println(VERSION);
+
+  EEPROM.begin(EEPROM_SIZE);
 
   Serial.println("Checking for channel values");
-  if(!eeprom.hasChannelValues()) {
+  if(EEPROM.read(50) == 255) {
     Serial.println("No Channel values found");
-    String values = "";
-    values.concat(0);
-    eeprom.saveChannelValues(values);
+    EEPROM.write(50, 97);
+    EEPROM.write(51, 97);
+    EEPROM.write(52, 97);
+    EEPROM.write(53, 97);
+    EEPROM.commit();
   }
   
-  String values = eeprom.loadChannelValues();
+  channel_char_index[0] = EEPROM.read(50);
+  channel_char_index[1] = EEPROM.read(51);
+  channel_char_index[2] = EEPROM.read(52);
+  channel_char_index[3] = EEPROM.read(53);
 
-  Serial.println(values.charAt(0));
-  Serial.println(values.charAt(1));
-  Serial.println(values.charAt(2));
-  Serial.println(values.charAt(3));
-  
-  channel_char_index[0] = values.charAt(0);
-  channel_char_index[1] = values.charAt(1);
-  channel_char_index[2] = values.charAt(2);
-  channel_char_index[3] = values.charAt(3);
-  
+  Serial.print("channel_char_index[0] = ");Serial.println(channel_char_index[0]);
+  Serial.print("channel_char_index[1] = ");Serial.println(channel_char_index[1]);
+  Serial.print("channel_char_index[2] = ");Serial.println(channel_char_index[2]);
+  Serial.print("channel_char_index[3] = ");Serial.println(channel_char_index[3]);
   
   
   tft.init();
@@ -211,12 +213,14 @@ void print() {
 
   incrementChannel();
   chan = getChannelString();
-  std::string values = "";
-  for(uint8_t i = 0; i < 4; i++) {
-    values.append(1, channel_char_index[i]);
-  }
-  eeprom.saveChannelValues(values.c_str());
   drawChannelLabel(chan);
+
+  EEPROM.write(50, channel_char_index[0]);
+  EEPROM.write(51, channel_char_index[1]);
+  EEPROM.write(52, channel_char_index[2]);
+  EEPROM.write(53, channel_char_index[3]);
+  EEPROM.commit();
+  
 }
 
 void incrementChannel() {
