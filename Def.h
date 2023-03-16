@@ -16,7 +16,7 @@
 #define PRINT_BUTTON_W 300
 #define PRINT_BUTTON_H 100
 
-#define NUMBER_OF_UNITS 44
+#define NUMBER_OF_UNITS 45
 
 std::array<std::string, NUMBER_OF_UNITS> units = {
   "Choose Control",
@@ -62,5 +62,6 @@ std::array<std::string, NUMBER_OF_UNITS> units = {
   "5797HA",
   "LRF120VPR1L-BT",
   "RF12V1PR-ASL-BT",
-  "EL-70034"
+  "EL-70034",
+  "RF12V-1PRT-2PRD-BT"
 };
