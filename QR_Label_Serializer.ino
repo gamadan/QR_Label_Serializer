@@ -10,6 +10,10 @@
  ###### DON'T FORGET TO UPDATE THE User_Setup.h FILE IN THE LIBRARY ######
  #########################################################################
  */
+
+ /* 
+ * v1.0.1 - Added 'RF12V-1PRT-2PRD-BT'
+ */
 #include <HardwareSerial.h>
 #include "FS.h"
 #include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
@@ -17,7 +21,7 @@
 #include "Def.h"
 #include <EEPROM.h>
 
-#define VERSION "1.0.0"
+#define VERSION "1.0.1"
 
 #define EEPROM_SIZE        512
 
