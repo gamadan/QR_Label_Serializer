@@ -21,6 +21,27 @@
 #include "Def.h"
 #include <EEPROM.h>
 
+#include "ServerCallbacks.h"
+#include "Unit_CharCallbacks.h"
+#include "Channel_CharCallbacks.h"
+
+BLECharacteristic *unitCharacteristic;
+BLECharacteristic *channelCharacteristic;
+
+void ble_task(void * parameters);
+TaskHandle_t ble_handle;
+std::string rxUnitMessage = "";
+std::string rxChannelMessage = "";
+
+
+/*
+ * 
+ * v2.0.0 - Added BLE characteristics to print from BLE dev app
+ * 
+ */
+
+
+ 
 #define VERSION "1.0.1"
 
 #define EEPROM_SIZE        512
@@ -53,6 +74,20 @@ HardwareSerial uart(2);  //if using UART2
 uint8_t channel_char_index[] = {0, 0, 0, 0};
 
 char channel[4];
+
+
+
+void startBLETask() {
+  xTaskCreatePinnedToCore(ble_task,
+                          "BLE Task",
+                          1024*5,
+                          NULL,
+                          20,
+                          &ble_handle,
+                          1);
+}
+
+
 
 void setup(void) {
   Serial.begin(115200);
@@ -116,10 +151,22 @@ void setup(void) {
   // (cursor will move to next line automatically during printing with 'tft.println'
   //  or stay on the line is there is room for the text with tft.print)
   //tft.setCursor(0, 0, 2);
-
+  
+  startBLETask();
 }
 
 void loop() {
+  //
+  if(!rxUnitMessage.empty() && !rxChannelMessage.empty()) {
+    Serial.println("BLE Printing:");
+    Serial.print("Unit:");Serial.println(rxUnitMessage.c_str());
+    Serial.print("Channel:");Serial.println(rxChannelMessage.c_str());
+    printQrLabel(rxUnitMessage, rxChannelMessage);
+    rxUnitMessage = "";
+    rxChannelMessage = "";
+  }
+
+  
   tft.getTouch(&x, &y);
 
 
@@ -189,6 +236,35 @@ void printQrLabel(std::string chan)
   uart.println("^BQN,2,4");
   uart.print("^FDQA,");
   uart.print(units[unitIndex].c_str());
+  uart.print(",");
+  uart.print(chan.c_str());
+  uart.println("^FS");
+  uart.println("^XZ");
+  uart.flush();
+  uart.end();
+  delay(10);  
+}
+
+void printQrLabel(std::string unit, std::string chan)
+{
+  
+  uart.begin(9600, SERIAL_8N1, 16, 17);
+  delay(5);
+  
+  uart.println("^XA");
+  uart.println("^CI0,157,48");
+  uart.println("^CF0,35");
+  uart.print("^FO5,25^FD");
+  uart.print(unit.c_str());
+  uart.println("^FS");
+  uart.println("^FO10,100^FDChannel^FS");
+  uart.print("^FO32,150^FD");
+  uart.print(chan.c_str());
+  uart.println("^FS");
+  uart.println("^FO200,50");
+  uart.println("^BQN,2,4");
+  uart.print("^FDQA,");
+  uart.print(unit.c_str());
   uart.print(",");
   uart.print(chan.c_str());
   uart.println("^FS");
