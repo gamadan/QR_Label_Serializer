@@ -14,6 +14,8 @@
  /* 
  * v1.0.1 - Added 'RF12V-1PRT-2PRD-BT'
  */
+#include <iostream>
+#include <vector>
 #include <HardwareSerial.h>
 #include "FS.h"
 #include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
@@ -156,7 +158,7 @@ void printQrLabel(std::string chan)
   uart.println("^CI0,157,48");
   uart.println("^CF0,35");
   uart.print("^FO5,25^FD");
-  uart.print(units[unitIndex].c_str());
+  uart.print(units.at(unitIndex).c_str());
   uart.println("^FS");
   uart.println("^FO10,100^FDChannel^FS");
   uart.print("^FO32,150^FD");
@@ -165,7 +167,7 @@ void printQrLabel(std::string chan)
   uart.println("^FO200,50");
   uart.println("^BQN,2,4");
   uart.print("^FDQA,");
-  uart.print(units[unitIndex].c_str());
+  uart.print(units.at(unitIndex).c_str());
   uart.print(",");
   uart.print(chan.c_str());
   uart.println("^FS");
@@ -284,11 +286,11 @@ void incrementChannel() {
 
 void back() {
   if(unitIndex == 0) {
-    unitIndex = NUMBER_OF_UNITS - 1;
+    unitIndex = units.size() - 1;
   } else {
     unitIndex--;
   }  
-  drawUnitLabel(units[unitIndex]);
+  drawUnitLabel(units.at(unitIndex));
 }
 
 

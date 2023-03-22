@@ -47,7 +47,7 @@ void app_task(void * parameters) {
   
   drawBackButton();
   drawForwardButton();
-  drawUnitLabel(units[unitIndex]);
+  drawUnitLabel(units.at(unitIndex));
   drawChannelLabel(getChannelString());
   drawPrintButton();
   
