@@ -45,22 +45,23 @@ void ble_task(void * parameters) {
   
   TickType_t currentTickCount = xTaskGetTickCount();
   for( ;; ) {
+    vTaskDelay(50 / portTICK_PERIOD_MS ); 
     currentTickCount = xTaskGetTickCount();
     if (bDeviceConnected) {
     delay(10); // bluetooth stack will go into congestion, if too many packets are sent
-  }
-  // disconnecting
-  if (!bDeviceConnected && bOldDeviceConnected) {
-      delay(500); // give the bluetooth stack the chance to get things ready
-      BLEDevice::startAdvertising();//pServer->startAdvertising(); // restart advertising
-      Serial.println("start advertising");
+    }
+    // disconnecting
+    if (!bDeviceConnected && bOldDeviceConnected) {
+        delay(500); // give the bluetooth stack the chance to get things ready
+        BLEDevice::startAdvertising();//pServer->startAdvertising(); // restart advertising
+        Serial.println("start advertising");
+        bOldDeviceConnected = bDeviceConnected;
+    }
+    
+    // connecting
+    if (bDeviceConnected && !bOldDeviceConnected) {
+      Serial.println("Device connecting.");
       bOldDeviceConnected = bDeviceConnected;
-  }
-  
-  // connecting
-  if (bDeviceConnected && !bOldDeviceConnected) {
-    Serial.println("Device connecting.");
-    bOldDeviceConnected = bDeviceConnected;
-  }
+    }
   }
 }
