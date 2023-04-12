@@ -18,7 +18,8 @@
 
 #define NUMBER_OF_UNITS 45
 
-std::array<std::string, NUMBER_OF_UNITS> units = {
+//std::array<std::string, NUMBER_OF_UNITS> units = {
+std::vector<std::string> units = {
   "Choose Control",
   "183744",
   "HPC-8F",
