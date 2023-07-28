@@ -1,3 +1,10 @@
+/*
+ * how to get TFT_eSPI (by BODMER) working:
+ * 
+ * The library
+ */
+
+
 /*  
  Test the tft.print() viz embedded tft.write() function
 
@@ -26,9 +33,14 @@
 #include "ServerCallbacks.h"
 #include "Unit_CharCallbacks.h"
 #include "Channel_CharCallbacks.h"
+#include "AddUnit_CharCallbacks.h"
+#include "RemoveUnit_CharCallbacks.h"
 
 BLECharacteristic *unitCharacteristic;
 BLECharacteristic *channelCharacteristic;
+
+BLECharacteristic *addUnitCharacteristic;
+BLECharacteristic *removeUnitCharacteristic;
 
 void app_task(void * parameters);
 void ble_task(void * parameters);
@@ -38,6 +50,8 @@ TaskHandle_t ble_handle;
 
 std::string rxUnitMessage = "";
 std::string rxChannelMessage = "";
+std::string rxAddUnitMessage = "";
+std::string rxRemoveUnitMessage = "";
 
 
 /*
@@ -83,6 +97,7 @@ uint8_t channel_char_index[] = {0, 0, 0, 0};
 
 char channel[4];
 
+std::string unitListPath = "/unitList.txt";
 
 
 void startAppTask() {
@@ -106,7 +121,90 @@ void startBLETask() {
 }
 
 
+bool doesUnitExistInList(std::string unitName) {
+  for(int i = 0; i < units.size(); i++) {
+    if(units.at(i).compare(unitName) == 0) return true;
+  }
+  return false;
+}
 
+
+void deleteFile(const char * path){
+    Serial.printf("Deleting file: %s\r\n", path);
+    if(SPIFFS.remove(path)){
+        Serial.println("- file deleted");
+    } else {
+        Serial.println("- delete failed");
+    }
+}
+
+void writeFile(const char * path, const char * message){
+    Serial.printf("Writing file: %s ", path);
+
+    File file = SPIFFS.open(path, FILE_WRITE);
+    if(!file){
+        Serial.println("- failed to open file for writing");
+        return;
+    }
+    if(file.print(message)){
+        Serial.println("- file written");
+    } else {
+        Serial.println("- write failed");
+    }
+    file.close();
+}
+std::string readFile(const char * path){
+    std::string output = "";
+    Serial.printf("Reading file: %s\r\n", path);
+    
+    File file = SPIFFS.open(path);
+    if(!file || file.isDirectory()){
+        Serial.println("- failed to open file for reading");
+        return output;
+    }
+    
+  
+    Serial.print("File size:");Serial.println(file.size());
+  
+    Serial.println("Read from file:");
+  
+    while(file.available()){
+        output += file.read();
+    }
+    file.close();
+    //Serial.print("Read: ");Serial.print(path);Serial.println(", contents: ");
+    //Serial.println(output.c_str());
+    return output;
+}
+
+void saveUnitListFile() {
+  std::string list = "";
+  for(int i = 0; i < units.size(); i++) {
+    list.append(units.at(i));
+    list.append("|");  
+  }
+  list.pop_back();
+  writeFile(unitListPath.c_str(), list.c_str());
+}
+bool loadUnitListFile() {
+  std::string unitList = readFile(unitListPath.c_str());
+  if(unitList.size() > 0) {
+    units.clear();
+  } else {
+    return false;
+  }
+  std::size_t found = unitList.find("|");
+  while(found != std::string::npos) {
+    std::string unit = unitList.substr(0, found);
+    Serial.print("unit: ");Serial.println(unit.c_str());
+    units.push_back(unit); 
+    unitList = unitList.substr(found + 1);
+    found = unitList.find("|");
+  }
+    Serial.print("unit: ");Serial.println(unitList.c_str());
+  units.push_back(unitList);
+  return true;
+}
 void setup(void) {
   Serial.begin(115200);
 
@@ -114,7 +212,14 @@ void setup(void) {
   Serial.print("Version: ");Serial.println(VERSION);
 
   EEPROM.begin(EEPROM_SIZE);
+  
+  init_SPIFFS();
 
+  Serial.println("Reading unit list.");
+
+  loadUnitListFile();
+  //Serial.println(unitList.c_str());
+  
   startAppTask();
   startBLETask();
 }
@@ -261,7 +366,7 @@ void incrementChannel() {
       carry = 1;
       channel_char_index[1] = 0;
     } else {
-      channel_char_index[1] = channel_char_index[13] + 1;
+      channel_char_index[1] = channel_char_index[1] + 1;
     }
   }
   
@@ -385,18 +490,20 @@ void populatePossibleCharacters() {
     possibleChannelCharacters[i + 26] = possible++;
   }
 }
-
-void touch_calibrate()
-{
-  uint16_t calData[5];
-  uint8_t calDataOK = 0;
-
+void init_SPIFFS() {
   // check file system exists
   if (!SPIFFS.begin()) {
     Serial.println("Formatting file system");
     SPIFFS.format();
     SPIFFS.begin();
   }
+}
+void touch_calibrate()
+{
+  uint16_t calData[5];
+  uint8_t calDataOK = 0;
+
+  
 
   // check if calibration file exists and size is correct
   if (SPIFFS.exists(CALIBRATION_FILE)) {

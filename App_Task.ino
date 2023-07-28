@@ -2,19 +2,19 @@
 
 void app_task(void * parameters) {  
   Serial.println("Checking for channel values");
-  if(EEPROM.read(50) == 255) {
+  //if(EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_3) == 255) {
     Serial.println("No Channel values found");
-    EEPROM.write(50, 97);
-    EEPROM.write(51, 97);
-    EEPROM.write(52, 97);
-    EEPROM.write(53, 97);
+    EEPROM.write(QR_BLE_CHANNEL_ADDRESS_0, 0);
+    EEPROM.write(QR_BLE_CHANNEL_ADDRESS_1, 0);
+    EEPROM.write(QR_BLE_CHANNEL_ADDRESS_2, 0);
+    EEPROM.write(QR_BLE_CHANNEL_ADDRESS_3, 0);
     EEPROM.commit();
-  }
+  //}
   
-  channel_char_index[0] = EEPROM.read(50);
-  channel_char_index[1] = EEPROM.read(51);
-  channel_char_index[2] = EEPROM.read(52);
-  channel_char_index[3] = EEPROM.read(53);
+  channel_char_index[0] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0);
+  channel_char_index[1] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1);
+  channel_char_index[2] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2);
+  channel_char_index[3] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_3);
 
   Serial.print("channel_char_index[0] = ");Serial.println(channel_char_index[0]);
   Serial.print("channel_char_index[1] = ");Serial.println(channel_char_index[1]);
@@ -64,6 +64,37 @@ void app_task(void * parameters) {
       printQrLabel(rxUnitMessage, rxChannelMessage);
       rxUnitMessage = "";
       rxChannelMessage = "";
+    }
+      //std::string rxAddUnitMessage = "";
+      //std::string rxRemoveUnitMessage = "";
+
+    if(!rxAddUnitMessage.empty()) {
+      
+      std::string name = rxAddUnitMessage;
+      if(doesUnitExistInList(name)) {
+        Serial.println("Unit already exists!");
+      } else {
+        units.push_back(name);
+        saveUnitListFile();
+        Serial.println("Restarting ESP32");
+        delay(2000);
+        esp_restart();
+      }
+    } else if(!rxRemoveUnitMessage.empty()) {
+      std::string name = rxRemoveUnitMessage;
+      if(!doesUnitExistInList(name)) {
+        Serial.println("Unit does not exist!");
+      } else {
+        for(int i = 0; i < units.size(); i++) {
+          if(units.at(i).compare(name) == 0) {
+            units.erase(units.begin()+i);
+          }
+        }        
+        saveUnitListFile();
+        Serial.println("Restarting ESP32");
+        delay(2000);
+        esp_restart();
+      }
     }
   
     
