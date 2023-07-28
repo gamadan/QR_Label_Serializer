@@ -1,7 +1,9 @@
 /*
  * how to get TFT_eSPI (by BODMER) working:
  * 
- * The library
+ * The library has setup files that need to be modified. 
+ * In a pinch, grab the 'User_Setup.h' file out of this
+ * project.
  */
 
 
@@ -217,7 +219,9 @@ void setup(void) {
 
   Serial.println("Reading unit list.");
 
-  loadUnitListFile();
+  if(!loadUnitListFile()) {
+    Serial.println("Failed to load unitList file from SPIFFS!");
+  }
   //Serial.println(unitList.c_str());
   
   startAppTask();
@@ -332,10 +336,10 @@ void print() {
   chan = getChannelString();
   drawChannelLabel(chan);
 
-  EEPROM.write(50, channel_char_index[0]);
-  EEPROM.write(51, channel_char_index[1]);
-  EEPROM.write(52, channel_char_index[2]);
-  EEPROM.write(53, channel_char_index[3]);
+  EEPROM.write(QR_BLE_CHANNEL_ADDRESS_0, channel_char_index[0]);
+  EEPROM.write(QR_BLE_CHANNEL_ADDRESS_1, channel_char_index[1]);
+  EEPROM.write(QR_BLE_CHANNEL_ADDRESS_2, channel_char_index[2]);
+  EEPROM.write(QR_BLE_CHANNEL_ADDRESS_3, channel_char_index[3]);
   EEPROM.commit();
   
 }

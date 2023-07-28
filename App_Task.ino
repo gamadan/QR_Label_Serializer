@@ -2,14 +2,14 @@
 
 void app_task(void * parameters) {  
   Serial.println("Checking for channel values");
-  //if(EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_3) == 255) {
+  if(EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_3) == 255) {
     Serial.println("No Channel values found");
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_0, 0);
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_1, 0);
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_2, 0);
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_3, 0);
     EEPROM.commit();
-  //}
+  }
   
   channel_char_index[0] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0);
   channel_char_index[1] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1);
@@ -21,12 +21,14 @@ void app_task(void * parameters) {
   Serial.print("channel_char_index[2] = ");Serial.println(channel_char_index[2]);
   Serial.print("channel_char_index[3] = ");Serial.println(channel_char_index[3]);
   
-  
+  Serial.println("1");
   tft.init();
   tft.setRotation(1);
   x = 0;
   y = 0;
+  Serial.println("2");
   unitIndex = 0;
+  Serial.println("3");
 
   populatePossibleCharacters();
   channel[0] = possibleChannelCharacters[channel_char_index[0]];
@@ -55,6 +57,9 @@ void app_task(void * parameters) {
   // (cursor will move to next line automatically during printing with 'tft.println'
   //  or stay on the line is there is room for the text with tft.print)
   //tft.setCursor(0, 0, 2);
+
+
+  
   for( ;; ) {
     vTaskDelay(50 / portTICK_PERIOD_MS ); 
     if(!rxUnitMessage.empty() && !rxChannelMessage.empty()) {
