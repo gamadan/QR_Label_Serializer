@@ -3,6 +3,7 @@
 #define CHANNEL_CHARACTERISTIC_UUID     "beb54831-36e1-4688-b7f5-ea07361b26a8"
 #define ADDUNIT_CHARACTERISTIC_UUID     "beb54842-36e1-4688-b7f5-ea07361b26a8"
 #define REMOVEUNIT_CHARACTERISTIC_UUID  "beb54843-36e1-4688-b7f5-ea07361b26a8"
+#define RAWDATA_CHARACTERISTIC_UUID  "beb54844-36e1-4688-b7f5-ea07361b26a8"
 
 TickType_t lastReceivedTick = xTaskGetTickCount();
 bool bDeviceConnected, bOldDeviceConnected = false;
@@ -39,11 +40,22 @@ void ble_task(void * parameters) {
                                          BLECharacteristic::PROPERTY_WRITE
                                        );
 
+  rawDataCharacteristic = pService->createCharacteristic(
+                                         RAWDATA_CHARACTERISTIC_UUID,
+                                         BLECharacteristic::PROPERTY_WRITE
+                                       );
+
 
   unitCharacteristic->setCallbacks(new Unit_CharCallbacks(&lastReceivedTick, &rxUnitMessage));
   channelCharacteristic->setCallbacks(new Channel_CharCallbacks(&lastReceivedTick, &rxChannelMessage));
   addUnitCharacteristic->setCallbacks(new AddUnit_CharCallbacks(&rxAddUnitMessage));
   removeUnitCharacteristic->setCallbacks(new RemoveUnit_CharCallbacks(&rxRemoveUnitMessage));
+  removeUnitCharacteristic->setCallbacks(new RawData_CharCallbacks(&uart));
+
+  rawDataCharacteristic->addDescriptor(new BLE2902());
+  BLEDescriptor rawDataDescriptor("2901"); // Create descriptor
+  rawDataDescriptor.setValue("Send Raw Print Data"); // Set descriptor value
+  unitCharacteristic->addDescriptor(&rawDataDescriptor); // Add descriptor to characteristic
 
   unitCharacteristic->addDescriptor(new BLE2902());
   BLEDescriptor unit_Descriptor("2901"); // Create descriptor

@@ -37,12 +37,15 @@
 #include "Channel_CharCallbacks.h"
 #include "AddUnit_CharCallbacks.h"
 #include "RemoveUnit_CharCallbacks.h"
+#include "RawData_CharCallbacks.h"
 
 BLECharacteristic *unitCharacteristic;
 BLECharacteristic *channelCharacteristic;
 
 BLECharacteristic *addUnitCharacteristic;
 BLECharacteristic *removeUnitCharacteristic;
+
+BLECharacteristic *rawDataCharacteristic;
 
 void app_task(void * parameters);
 void ble_task(void * parameters);
@@ -54,6 +57,7 @@ std::string rxUnitMessage = "";
 std::string rxChannelMessage = "";
 std::string rxAddUnitMessage = "";
 std::string rxRemoveUnitMessage = "";
+std::string rxRawDataMessage = "";
 
 
 /*
