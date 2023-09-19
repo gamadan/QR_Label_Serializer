@@ -32,20 +32,29 @@
 #include "Def.h"
 #include <EEPROM.h>
 
-#include "ServerCallbacks.h"
+#include "QR_Label_Serializer_ServerCallbacks.h"
 #include "Unit_CharCallbacks.h"
 #include "Channel_CharCallbacks.h"
 #include "AddUnit_CharCallbacks.h"
 #include "RemoveUnit_CharCallbacks.h"
 #include "RawData_CharCallbacks.h"
 
+BLEService *printLabelService;
+BLEService *addRemoveService;
+BLEService *rawDataService;
+
 BLECharacteristic *unitCharacteristic;
 BLECharacteristic *channelCharacteristic;
-
 BLECharacteristic *addUnitCharacteristic;
 BLECharacteristic *removeUnitCharacteristic;
-
 BLECharacteristic *rawDataCharacteristic;
+
+
+
+
+
+
+
 
 void app_task(void * parameters);
 void ble_task(void * parameters);
