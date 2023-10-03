@@ -108,7 +108,7 @@ char possibleChannelCharacters[36];
 HardwareSerial uart(2);  //if using UART2
 
 
-uint8_t channel_char_index[] = {0, 0, 0, 0};
+uint8_t channel_char_index[] = {1, 0, 0, 0};
 
 char channel[4];
 
