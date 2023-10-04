@@ -10,7 +10,10 @@ void app_task(void * parameters) {
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_3, 0);
     EEPROM.commit();
   }
-  
+
+
+  EEPROM.write(QR_BLE_CHANNEL_ADDRESS_0, 1);
+  EEPROM.commit();
   channel_char_index[0] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0);
   channel_char_index[1] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1);
   channel_char_index[2] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2);
@@ -49,6 +52,9 @@ void app_task(void * parameters) {
   
   drawBackButton();
   drawForwardButton();
+  Serial.printf("unitIndex = %d\r\n", unitIndex);
+  Serial.printf("units.size() = %d\r\n", units.size());
+  Serial.printf("units.at(unitIndex) = %s\r\n", units.at(unitIndex).c_str());
   drawUnitLabel(units.at(unitIndex));
   drawChannelLabel(getChannelString());
   drawPrintButton();
