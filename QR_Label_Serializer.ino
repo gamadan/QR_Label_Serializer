@@ -202,7 +202,10 @@ void saveUnitListFile() {
   writeFile(unitListPath.c_str(), list.c_str());
 }
 bool loadUnitListFile() {
+  
+  Serial.println("Loading unit list from flash.");
   std::string unitList = readFile(unitListPath.c_str());
+  Serial.printf("Read %d bytes from flash\r\n", unitList.size());
   if(unitList.size() > 0) {
     units.clear();
   } else {
