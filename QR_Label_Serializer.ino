@@ -205,6 +205,10 @@ bool loadUnitListFile() {
   
   Serial.println("Loading unit list from flash.");
   std::string unitList = readFile(unitListPath.c_str());
+
+  Serial.println("==========================================================");
+  Serial.println(unitList.c_str());
+  Serial.println("==========================================================");
   Serial.printf("Read %d bytes from flash\r\n", unitList.size());
   if(unitList.size() > 0) {
     units.clear();
