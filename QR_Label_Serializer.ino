@@ -68,6 +68,7 @@ std::string rxAddUnitMessage = "";
 std::string rxRemoveUnitMessage = "";
 std::string rxRawDataMessage = "";
 
+int numberOfUnits = 0;
 
 /*
  * 
@@ -75,11 +76,12 @@ std::string rxRawDataMessage = "";
  * 
  * v2.0.1 - Added task for application logic
  * 
+ * v2.1.0 - Made unit count dynamic
  */
 
 
  
-#define VERSION "2.0.1"
+#define VERSION "2.1.0"
 
 #define EEPROM_SIZE        512
 
@@ -215,16 +217,22 @@ bool loadUnitListFile() {
   } else {
     return false;
   }
+
+  
   std::size_t found = unitList.find("|");
   while(found != std::string::npos) {
     std::string unit = unitList.substr(0, found);
     Serial.print("unit: ");Serial.println(unit.c_str());
+    numberOfUnits++;
     units.push_back(unit); 
     unitList = unitList.substr(found + 1);
     found = unitList.find("|");
   }
-    Serial.print("unit: ");Serial.println(unitList.c_str());
+
+  
+  Serial.print("unit: ");Serial.println(unitList.c_str());
   units.push_back(unitList);
+  numberOfUnits++;
   return true;
 }
 void setup(void) {
@@ -424,7 +432,7 @@ void back() {
 
 
 void forward() {
-  if(unitIndex == NUMBER_OF_UNITS - 1) {
+  if(unitIndex == numberOfUnits - 1) {
     unitIndex = 0;
   } else {
     unitIndex++;
