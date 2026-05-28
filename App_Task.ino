@@ -2,8 +2,8 @@
 
 void app_task(void * parameters) {  
   Serial.println("Checking for channel values");
-  if(EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2) == 255 || EEPROM.read(QR_BLE_CHANNEL_ADDRESS_3) == 255) {
-    Serial.println("No Channel values found");
+  if(EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0) == 255 && EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1) == 255 && EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2) == 255 && EEPROM.read(QR_BLE_CHANNEL_ADDRESS_3) == 255) {
+    Serial.println("No Channel values found, initializing to aaaa");
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_0, 0);
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_1, 0);
     EEPROM.write(QR_BLE_CHANNEL_ADDRESS_2, 0);
@@ -11,9 +11,6 @@ void app_task(void * parameters) {
     EEPROM.commit();
   }
 
-
-  EEPROM.write(QR_BLE_CHANNEL_ADDRESS_0, 1);
-  EEPROM.commit();
   channel_char_index[0] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_0);
   channel_char_index[1] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_1);
   channel_char_index[2] = EEPROM.read(QR_BLE_CHANNEL_ADDRESS_2);
